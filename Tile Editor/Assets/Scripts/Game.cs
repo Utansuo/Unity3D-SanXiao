@@ -7,13 +7,22 @@ public class Game : MonoBehaviour {
 	public static  AndroidPlugin androidPlugin;
 	public static  DataManager dataManager;
 	public Transform uiParent;
+	
+	void Awake()
+	{
+		InitManager();
+	}
 	// Use this for initialization
 	void Start () {
-		dataManager = CreateObj<DataManager>("DataManager");
-		uimanager = CreateObj<UIManager>("UIManager");
-		androidPlugin = CreateObj<AndroidPlugin>("AndroidPlugin");
-		
-	    uimanager.SetUIParent = uiParent;
+	
+	}
+	void InitManager()
+	{
+			dataManager = CreateObj<DataManager>("DataManager");
+			uimanager = CreateObj<UIManager>("UIManager");
+			//androidPlugin = CreateObj<AndroidPlugin>("AndroidPlugin");
+			
+			uimanager.SetUIParent = uiParent;
 	}
 	
 	// Update is called once per frame
@@ -23,7 +32,7 @@ public class Game : MonoBehaviour {
 	
 	public T CreateObj<T> (string prefabName)where T:Component 
 	{
-		 string path="Prefabs/LoadPrefabs/Obj/"+prefabName;
+		 string path="Prefabs/Obj/"+prefabName;
 		 GameObject go= (GameObject)Instantiate( Resources.Load(path));
 		 go.transform.parent = gameObject.transform;
 		 go.name = prefabName;

@@ -5,119 +5,123 @@ using System.Text;
 	
 public class CreateMap : MonoBehaviour {
 	
-	public int row;
-	public int column;
+		public UILabel totalPointLab;
+		GameData gameData;
 	
-	public UILabel totalPointLab;
-	int totalPoint;
+		int row;
+		int column;
+		int offX;
+		int[,] mapInfo;
+		int totalPoint;
+		int curType;
+		int f ;
+		int moveTileNum;
 	
-	int tileWidth = 50;
-	int tileHeight =50;
-	int offX;
+		float mapWidthMax;
+		float mapHeightMax;
 	
-	Dictionary<string,TileObj> objDic;
-	int[,] mapInfo;
-	Vector2 constVar = new Vector2(-1,-1);
-	int curType;
-	float mapWidthMax;
-	float mapHeightMax;
-	
-	Queue<Vector2> tempQueue;
-	Queue<Vector2> saveQueue;
-	
-	List<List<Vector2>> indexList;
-	List<Tile> tile;
-	
-	List<Tile> horizontalTile;
-	bool intervalFlag;
-	bool dropFlag;
-	
-	bool gameOverCheckFlag;
-	
-	int f ;
-	int moveTileNum;
-	// Use this for initialization
-	void Start () {
+		bool intervalFlag;
+		bool dropFlag;
+		bool gameOverCheckFlag;
 		
-		intervalFlag=false;
-		dropFlag = false;
-		gameOverCheckFlag =false;
-		offX = Mathf.CeilToInt(Screen.width%tileWidth/2);
-		 column = Screen.width/tileWidth;
-		 row= Screen.height/tileHeight/2;
-		print(" "+ Screen.width+ "row:"+row+"column:"+column);
-		curType = -1;
-		mapInfo = new int[row,column];
-		objDic = new Dictionary<string, TileObj>();
-		tempQueue = new Queue<Vector2>();
-		saveQueue = new Queue<Vector2>();
-		indexList = new List<List<Vector2>>();
-		tile = new List<Tile>();
-		horizontalTile = new List<Tile>();
-		 StartCoroutine(InitMap());
-		print("  "+Screen.width);
-		print(Mathf.CeilToInt(10.4f));
-		mapWidthMax = column*tileWidth;
-		mapHeightMax = row*tileHeight;
-	}
+		List<List<Vector2>> indexList;
+		List<Tile> tile;
+		List<Tile> horizontalTile;
 	
-	// Update is called once per frame
-	void Update () {
-		if(intervalFlag) return;
-		if(Input.GetMouseButtonUp(0) )
+		Queue<Vector2> tempQueue;
+		Queue<Vector2> saveQueue;
+	
+		Dictionary<string,TileObj> objDic;
+
+		Vector2 constVar = new Vector2(-1,-1);
+
+	
+		// Use this for initialization
+		void Start ()
 		{
-			if(offX<=Input.mousePosition.x&&Input.mousePosition.x<mapWidthMax&&Input.mousePosition.y>=0&&Input.mousePosition.y<mapHeightMax)
-			{
-				tempQueue.Clear();
-				saveQueue.Clear();
-				indexList.Clear();
-				tile.Clear();
-				horizontalTile.Clear();
-				 Vector2 v2= CalculateCurIndex(Input.mousePosition);
-				if(mapInfo[(int)v2.y,(int)v2.x]>0)
-				{
-					intervalFlag = true;
-					CalculateRemoveTile(v2);
-				}
-				else
-				{
-					print("null");
-				}
-			}
-			else
-			{
-				print("AAAAAAAAAA");
-			}
+			gameData = Game.dataManager.gameData;
+		
+			column = gameData.Column;
+			row = gameData.Row;
+			offX = gameData.OffSetX;
+			mapWidthMax = gameData.MapWidthMax;
+			mapHeightMax = gameData.MapHeightMax;
+			mapInfo = gameData.mapInfo;
+			curType = -1;
+			objDic = gameData.objDic;
+		
+			intervalFlag = false;
+			dropFlag = false;
+			gameOverCheckFlag = false;
+		
+			indexList = new List<List<Vector2>>();
+			horizontalTile = new List<Tile>();
+			tile = new List<Tile>();
+		
+			tempQueue = new Queue<Vector2>();
+			saveQueue = new Queue<Vector2>();
+		
+		
+			StartCoroutine(InitMap());
+			
 		}
-	}
-	IEnumerator  InitMap()
-	{
-		for(int i=0;i<row;i++)
+	
+		// Update is called once per frame
+		void Update ()
 		{
-			for(int j=0;j<column;j++)
-			{
-				TileObj tileObj = new TileObj();
-				GameObject go = (GameObject)Instantiate(Resources.Load("Prefab/Button"));
-				int ran = Random.Range(1,7);
-				go.GetComponentInChildren<UISprite>().spriteName = go.GetComponentInChildren<UISprite>().atlas.spriteList[ran-1].name;
-				go.transform.parent = transform;
-				tileObj.x = (j+1/2f)*tileWidth-Screen.width/2+offX;
-				tileObj.y = (i+1/2f)*tileHeight-Screen.height/2;
-				go.transform.localPosition = new Vector3(tileObj.x,Screen.height+tileHeight,0);
-				iTween.MoveTo(go,iTween.Hash("y",tileObj.y,"islocal",true,"time",0.5f+j*0.1f));
-				go.transform.localScale = Vector3.one;
-				tileObj.obj = go;
-				objDic.Add(i+","+j,tileObj);	
-				mapInfo[i,j]=ran;
-			}
-			yield return new  WaitForSeconds(0.2f);
+				if(intervalFlag) return;
+				if(Input.GetMouseButtonUp(0) )
+				{
+						if(offX<=Input.mousePosition.x&&Input.mousePosition.x<mapWidthMax&&Input.mousePosition.y>=0&&Input.mousePosition.y<mapHeightMax)
+						{
+								tempQueue.Clear();
+								saveQueue.Clear();
+								indexList.Clear();
+								tile.Clear();
+								horizontalTile.Clear();
+								
+								Vector2 v2= CalculateCurIndex(Input.mousePosition);
+								if(mapInfo[(int)v2.y,(int)v2.x]>0)
+								{
+										intervalFlag = true;
+										CalculateRemoveTile(v2);
+								}
+								else{
+										print("null");
+								}
+						}
+						else{
+								print("AAAAAAAAAA");
+						}
+				}
 		}
-	}
+	
+		IEnumerator  InitMap()
+		{
+				for(int i=0;i<row;i++)
+				{
+						for(int j=0;j<column;j++)
+						{
+							
+				                TileObj tileObj = objDic[i+","+j];
+								GameObject go = (GameObject)Instantiate(Resources.Load("Prefabs/Obj/Tile"));
+
+								go.GetComponentInChildren<UISprite>().spriteName = go.GetComponentInChildren<UISprite>().atlas.spriteList[ mapInfo[i,j] - 1 ].name;
+								go.transform.parent = transform;
+				            
+								go.transform.localPosition = new Vector3(tileObj.x,tileObj.y,0);
+							//	iTween.MoveTo(go,iTween.Hash("y",tileObj.y,"islocal",true,"time",0.5f+j*0.1f));
+								go.transform.localScale =new Vector3(Game.dataManager.gameData.SpriteWidth,Game.dataManager.gameData.SpriteWidth,1);
+								tileObj.obj = go;
+						}
+						yield return new  WaitForSeconds(0.2f);
+				}
+		}
      Vector2 	CalculateCurIndex(Vector2 pos)
 	{
 		Vector2 vec2;
-		vec2.x = Mathf.FloorToInt((pos.x-1-offX)/tileWidth);
-		vec2.y = Mathf.FloorToInt((pos.y-1)/tileHeight);
+		vec2.x = Mathf.FloorToInt((pos.x-1-offX)/gameData.SpriteWidth);
+		vec2.y = Mathf.FloorToInt((pos.y-1)/gameData.SpriteHeight);
 		return vec2;
 	} 
 	
@@ -224,13 +228,13 @@ public class CreateMap : MonoBehaviour {
 			Vector2 v = vIndex[i];
 			mapInfo[(int)v.y,(int)v.x] = 0;
 			Destroy(objDic[v.y+","+v.x].obj);
-			UILabel  lable =  ((GameObject)Instantiate( Resources.Load("Prefab/Score"))).GetComponent<UILabel>();
-			lable.transform.parent = transform;
-			lable.transform.localPosition = new Vector3(objDic[v.y+","+v.x].x,objDic[v.y+","+v.x].y,0);
-			lable.transform.localScale = new Vector3(20,20,1);
-			int curPoint = 10+i*5;
-			lable.text =""+curPoint;
-			iTween.MoveTo(lable.gameObject,iTween.Hash("position",new Vector3(totalPointLab.transform.localPosition.x,totalPointLab.transform.localPosition.y,totalPointLab.transform.localPosition.z),"time",0.5f+i*0.3f,"islocal",true,"oncomplete","OnCompleteMoveOver","oncompletetarget",lable.gameObject,"oncompleteparams",curPoint));
+//			UILabel  lable =  ((GameObject)Instantiate( Resources.Load("Prefab/Score"))).GetComponent<UILabel>();
+//			lable.transform.parent = transform;
+//			lable.transform.localPosition = new Vector3(objDic[v.y+","+v.x].x,objDic[v.y+","+v.x].y,0);
+//			lable.transform.localScale = new Vector3(20,20,1);
+//			int curPoint = 10+i*5;
+//			lable.text =""+curPoint;
+//			iTween.MoveTo(lable.gameObject,iTween.Hash("position",new Vector3(totalPointLab.transform.localPosition.x,totalPointLab.transform.localPosition.y,totalPointLab.transform.localPosition.z),"time",0.5f+i*0.3f,"islocal",true,"oncomplete","OnCompleteMoveOver","oncompletetarget",lable.gameObject,"oncompleteparams",curPoint));
 		   if(!gameOverCheckFlag)
 			{
 				gameOverCheckFlag = true;

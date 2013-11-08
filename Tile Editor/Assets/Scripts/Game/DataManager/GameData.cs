@@ -28,7 +28,10 @@ public class GameData  {
 		column = width/spriteWidth;
 		offSetX = Mathf.CeilToInt(width%spriteWidth/2);
 		mapWidthMax = column*spriteWidth - offSetX;
+		mapHeightMax = row*spriteHeight;
 		objDic = new Dictionary<string,TileObj>(); 
+		mapInfo = new int[row,column];
+		InitGameData();
 	}
 	
 	public int Row
@@ -53,7 +56,17 @@ public class GameData  {
 	
 	public int MapHeightMax
 	{
-		get{return MapHeightMax;}
+		get{return mapHeightMax;}
+	}
+	
+	public int SpriteWidth
+	{
+		get{return spriteWidth;}
+	}
+	
+	public int SpriteHeight
+	{
+		get{return spriteHeight;}
 	}
 	
 	public void InitGameData()
@@ -66,7 +79,7 @@ public class GameData  {
 				mapInfo[i,j] = random;
 				TileObj tileObj = new TileObj();
 				tileObj.x = (j+1/2f)*spriteWidth-width/2+offSetX; //(j+1/2f)*tileWidth-Screen.width/2  
-				tileObj.y = (i+1/2f)*spriteHeight-height/3*2;
+				tileObj.y = (i+1/2f)*spriteHeight-height/2f;
 				objDic.Add(i+","+j,tileObj);
 			}
 		}
