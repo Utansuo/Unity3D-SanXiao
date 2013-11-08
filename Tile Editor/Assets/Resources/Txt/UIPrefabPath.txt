@@ -1,0 +1,5 @@
+Prefabs/LoadPrefabs/UI/TakePhoto
+Prefabs/LoadPrefabs/UI/Panel
+Prefabs/LoadPrefabs/UI/FriendsList
+Prefabs/LoadPrefabs/UI/Item
+
