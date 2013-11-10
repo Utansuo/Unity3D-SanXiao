@@ -229,5 +229,7 @@ static public class NGUIMenu
 		{
 			Debug.Log("No longer using the 2.5.0+ GUI handles. Selecting a widget will not bring up draggable handles.");
 		}
+		
 	}
+	
 }

@@ -5,11 +5,23 @@ public class UIManager : MonoBehaviour {
 	
 	public  Dictionary<UIPANEL,Component> uiDictory;
  	private Transform uiParent;
+	public StartPanel startPanel;
+	public CreateMap mainUI;
+	public SetPanel setPanel;
+	public GameOverPanel gameOverPanel;
 	// Use this for initialization
 	void Start () {
 		uiDictory = new Dictionary<UIPANEL,Component>(); 
-	
+	    InitStartPanel();
+
 	}
+	
+	void InitStartPanel()
+	{
+		startPanel = CreateUIObj<StartPanel>(UIPANEL.StartPanel);
+	}
+	
+
 	
 	// Update is called once per frame
 	void Update () {
@@ -25,11 +37,12 @@ public class UIManager : MonoBehaviour {
 		}
 		else
 		{
-			string path=Game.dataManager.uiDic[uiPanel];
-			GameObject go=(GameObject)Instantiate( Resources.Load(path));
+			string path = Game.dataManager.uiDic[uiPanel];
+			print("AA:"+ path);
+			GameObject go = Instantiate(Resources.Load(path)) as GameObject;
 			go.transform.parent = uiParent;
 		    go.transform.localScale = new Vector3(1,1,1);
-			go.name = path.Substring(path.LastIndexOf('/'));
+			go.name = path.Substring(path.LastIndexOf('/')+1);
 			t= go.GetComponent<T>();
 		    uiDictory.Add(uiPanel,t);
 		}

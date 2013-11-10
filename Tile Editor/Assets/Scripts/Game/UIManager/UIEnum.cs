@@ -7,12 +7,14 @@ public enum UIDESTORY
 				HIDE
 		}
 		
-		public enum UIPANEL
-		{
-				UIPANEL_TakePhoto,
-	            UIPANEL_Panel,
-	            UIPANEL_FriendsList
-		}
+public enum UIPANEL
+{
+	MainUI,
+    SetPanel,
+	StartPanel,
+	GameOverPanel
+
+}
 
 
 public class UIEnum

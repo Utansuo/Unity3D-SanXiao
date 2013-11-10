@@ -3,23 +3,18 @@ using System.Collections;
 
 public class BaseUI : MonoBehaviour {
 	
-	[HideInInspector]
-	private UIPANEL uiPanel;
-	[HideInInspector]
-	private bool uiDestory;
+
+	public UIPANEL uiPanel;
+	public bool uiDestory;
 	
-	public virtual void Init(UIPANEL panel,bool flag)
-	{
-		uiPanel = panel;
-		uiDestory = flag;
-	}
+
  
 	public virtual void Close()
 	{
-		
 		if(uiDestory)
 		{
-			Destroy(this.gameObject);
+			gameObject.SetActive(false);
+			Destroy(this.gameObject,0.05f);
 			Game.uimanager.uiDictory.Remove(uiPanel);
 		}
 		else

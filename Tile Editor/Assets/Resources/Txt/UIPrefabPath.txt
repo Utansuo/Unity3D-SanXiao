@@ -1,5 +1,4 @@
-Prefabs/LoadPrefabs/UI/TakePhoto
-Prefabs/LoadPrefabs/UI/Panel
-Prefabs/LoadPrefabs/UI/FriendsList
-Prefabs/LoadPrefabs/UI/Item
-
+Prefabs/UI/MainUI
+Prefabs/UI/SetPanel
+Prefabs/UI/StartPanel
+Prefabs/UI/GameOverPanel

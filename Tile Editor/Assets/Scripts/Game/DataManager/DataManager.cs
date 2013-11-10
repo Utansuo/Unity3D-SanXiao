@@ -8,6 +8,7 @@ public class DataManager : MonoBehaviour {
 	public Friends friends;
 	public Dictionary<UIPANEL,string> uiDic;
 	public GameData gameData;
+	public PlayerData playerData;
 	// Use this for initialization
 	
 	void Awake()
@@ -21,8 +22,8 @@ public class DataManager : MonoBehaviour {
 	
 	void InitData()
 	{
-		
 		gameData = new GameData(Screen.width,Screen.height);
+		playerData = new PlayerData();
 		
 		uiDic = new Dictionary<UIPANEL, string>();
 		TextAsset uiText = Resources.Load("Txt/UIPrefabPath") as TextAsset;
@@ -33,7 +34,7 @@ public class DataManager : MonoBehaviour {
 		{
 			uiDic.Add((UIPANEL)Arrays.GetValue(i),uiPath[i]);
 		}
-		print(uiDic[UIPANEL.UIPANEL_FriendsList]);
+		print(uiDic[UIPANEL.MainUI]);
 	}
 	
 	// Update is called once per frame

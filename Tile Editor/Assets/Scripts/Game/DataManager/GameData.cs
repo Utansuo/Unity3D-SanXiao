@@ -31,7 +31,7 @@ public class GameData  {
 		mapHeightMax = row*spriteHeight;
 		objDic = new Dictionary<string,TileObj>(); 
 		mapInfo = new int[row,column];
-		InitGameData();
+		//InitGameData();
 	}
 	
 	public int Row
@@ -71,6 +71,7 @@ public class GameData  {
 	
 	public void InitGameData()
 	{
+		objDic.Clear();
 		for(int i = 0;i<row;i++)
 		{
 			for(int j = 0;j<column;j++)

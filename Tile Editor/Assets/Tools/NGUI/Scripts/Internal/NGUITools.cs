@@ -28,21 +28,22 @@ static public class NGUITools
 	{
 		get
 		{
-			if (!mLoaded)
-			{
-				mLoaded = true;
-				mGlobalVolume = PlayerPrefs.GetFloat("Sound", 1f);
-			}
+//			if (!mLoaded)
+//			{
+//				mLoaded = true;
+//				mGlobalVolume = PlayerPrefs.GetFloat("Sound", 1f);
+//			}
 			return mGlobalVolume;
 		}
 		set
 		{
-			if (mGlobalVolume != value)
-			{
-				mLoaded = true;
-				mGlobalVolume = value;
-				PlayerPrefs.SetFloat("Sound", value);
-			}
+			mGlobalVolume = value;
+//			if (mGlobalVolume != value)
+//			{
+//				mLoaded = true;
+//				mGlobalVolume = value;
+//				PlayerPrefs.SetFloat("Sound", value);
+//			}
 		}
 	}
 

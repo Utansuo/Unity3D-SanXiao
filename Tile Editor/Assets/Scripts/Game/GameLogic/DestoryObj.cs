@@ -17,7 +17,7 @@ public class DestoryObj : MonoBehaviour {
 	{
 		//print("&&&&&&&&&&&&&&&&!!!!!!!!!!!!!!!!!!" +s);
 		Destroy(gameObject);
-//		totalPoint+=s;
-//		totalPointLab.text = ""+totalPoint;
+		Game.dataManager.playerData.Add(s);
+		Game.uimanager.mainUI.SetTotalPoint();
 	}
 }

@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 	
-public class CreateMap : MonoBehaviour {
+public class CreateMap : BaseUI {
 	
 		public UILabel totalPointLab;
+		public UISprite gameOver;
+		public Transform tileParent;			
 		GameData gameData;
 	
 		int row;
@@ -61,8 +63,10 @@ public class CreateMap : MonoBehaviour {
 			tempQueue = new Queue<Vector2>();
 			saveQueue = new Queue<Vector2>();
 		
-		
+		    gameData.InitGameData();
+			SetTotalPoint();
 			StartCoroutine(InitMap());
+		
 			
 		}
 	
@@ -107,7 +111,7 @@ public class CreateMap : MonoBehaviour {
 								GameObject go = (GameObject)Instantiate(Resources.Load("Prefabs/Obj/Tile"));
 
 								go.GetComponentInChildren<UISprite>().spriteName = go.GetComponentInChildren<UISprite>().atlas.spriteList[ mapInfo[i,j] - 1 ].name;
-								go.transform.parent = transform;
+								go.transform.parent = tileParent;
 				            
 								go.transform.localPosition = new Vector3(tileObj.x,tileObj.y,0);
 							//	iTween.MoveTo(go,iTween.Hash("y",tileObj.y,"islocal",true,"time",0.5f+j*0.1f));
@@ -117,7 +121,7 @@ public class CreateMap : MonoBehaviour {
 						yield return new  WaitForSeconds(0.2f);
 				}
 		}
-     Vector2 	CalculateCurIndex(Vector2 pos)
+    Vector2 CalculateCurIndex(Vector2 pos)
 	{
 		Vector2 vec2;
 		vec2.x = Mathf.FloorToInt((pos.x-1-offX)/gameData.SpriteWidth);
@@ -228,19 +232,20 @@ public class CreateMap : MonoBehaviour {
 			Vector2 v = vIndex[i];
 			mapInfo[(int)v.y,(int)v.x] = 0;
 			Destroy(objDic[v.y+","+v.x].obj);
-//			UILabel  lable =  ((GameObject)Instantiate( Resources.Load("Prefab/Score"))).GetComponent<UILabel>();
-//			lable.transform.parent = transform;
-//			lable.transform.localPosition = new Vector3(objDic[v.y+","+v.x].x,objDic[v.y+","+v.x].y,0);
-//			lable.transform.localScale = new Vector3(20,20,1);
-//			int curPoint = 10+i*5;
-//			lable.text =""+curPoint;
-//			iTween.MoveTo(lable.gameObject,iTween.Hash("position",new Vector3(totalPointLab.transform.localPosition.x,totalPointLab.transform.localPosition.y,totalPointLab.transform.localPosition.z),"time",0.5f+i*0.3f,"islocal",true,"oncomplete","OnCompleteMoveOver","oncompletetarget",lable.gameObject,"oncompleteparams",curPoint));
+			UILabel  lable =  ((GameObject)Instantiate( Resources.Load("Prefabs/UI/Score"))).GetComponent<UILabel>();
+			lable.transform.parent = transform;
+			lable.transform.localPosition = new Vector3(objDic[v.y+","+v.x].x,objDic[v.y+","+v.x].y,0);
+			lable.transform.localScale = new Vector3(20,20,1);
+			int curPoint = 10+i*5;
+			lable.text =""+curPoint;
+			iTween.MoveTo(lable.gameObject,iTween.Hash("position",new Vector3(totalPointLab.transform.localPosition.x,totalPointLab.transform.localPosition.y,totalPointLab.transform.localPosition.z),"time",0.5f+i*0.3f,"islocal",true,"oncomplete","OnCompleteMoveOver","oncompletetarget",lable.gameObject,"oncompleteparams",curPoint));
+			
 		   if(!gameOverCheckFlag)
 			{
 				gameOverCheckFlag = true;
 			}
 		}
-		
+		Game.soundManager.PlayCollectPoint();
 		//According to the growing up of column sorting
 		for(int i=0;i<indexList.Count;i++)
 		{
@@ -513,14 +518,25 @@ public class CreateMap : MonoBehaviour {
 				
 			}
 		}
-
+		iTween.MoveTo(gameOver.gameObject,iTween.Hash("y",0,"time",1,"isLocal",true,"easyType",iTween.EaseType.linear,"oncomplete","GameOverComplete","oncompletetarget",gameObject));
 		print("GameOver$$$$$$$$$$$$$$!");
 		//print("DDDDDDDDDDDDDDDDDDDDD");
+	}
+	void GameOverComplete()
+	{
+		base.Close();
+		Game.uimanager.gameOverPanel = Game.uimanager.CreateUIObj<GameOverPanel>(UIPANEL.GameOverPanel);
+		
 	}
 	
 	int GetTileType(Vector2 v2)
 	{
      	return mapInfo[(int)v2.y,(int)v2.x];
+	}
+	
+	public void SetTotalPoint()
+	{
+	    totalPointLab.text = "Total Points:"+ Game.dataManager.playerData.GetTotalPoints;
 	}
 }
 
