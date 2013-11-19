@@ -34,6 +34,10 @@ public class UIManager : MonoBehaviour {
 		if(uiDictory.ContainsKey(uiPanel))
 		{
 			t = (T)uiDictory[uiPanel];
+			if(!t.gameObject.activeSelf)
+			{
+				t.gameObject.SetActive(true);
+			}
 		}
 		else
 		{
@@ -47,6 +51,7 @@ public class UIManager : MonoBehaviour {
 		    uiDictory.Add(uiPanel,t);
 		}
 		 
+	
 		 return t;
 	}
 	

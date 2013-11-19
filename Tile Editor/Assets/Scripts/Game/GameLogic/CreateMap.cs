@@ -34,12 +34,14 @@ public class CreateMap : BaseUI {
 		Queue<Vector2> saveQueue;
 	
 		Dictionary<string,TileObj> objDic;
+	
+	   List<GameObject> dataTile;
 
 		Vector2 constVar = new Vector2(-1,-1);
 
-	
+	    private float originalY;
 		// Use this for initialization
-		void Start ()
+		void Awake ()
 		{
 			gameData = Game.dataManager.gameData;
 		
@@ -48,13 +50,8 @@ public class CreateMap : BaseUI {
 			offX = gameData.OffSetX;
 			mapWidthMax = gameData.MapWidthMax;
 			mapHeightMax = gameData.MapHeightMax;
-			mapInfo = gameData.mapInfo;
-			curType = -1;
-			objDic = gameData.objDic;
 		
-			intervalFlag = false;
-			dropFlag = false;
-			gameOverCheckFlag = false;
+			
 		
 			indexList = new List<List<Vector2>>();
 			horizontalTile = new List<Tile>();
@@ -62,14 +59,25 @@ public class CreateMap : BaseUI {
 		
 			tempQueue = new Queue<Vector2>();
 			saveQueue = new Queue<Vector2>();
-		
-		    gameData.InitGameData();
-			SetTotalPoint();
-			StartCoroutine(InitMap());
-		
-			
+			dataTile = new List<GameObject>();
+		    originalY = gameOver.transform.localPosition.y;
+		  
 		}
 	
+		void OnEnable()
+		{
+			gameOver.transform.localPosition =new Vector3(gameOver.transform.localPosition.x,originalY,gameOver.transform.localPosition.z);
+			curType = -1;
+			intervalFlag = false;
+			dropFlag = false;
+			gameOverCheckFlag = false;
+		    gameData.InitGameData();
+			mapInfo = gameData.mapInfo;
+		    objDic = gameData.objDic;
+			SetTotalPoint();
+			StartCoroutine(InitMap());
+		}
+		
 		// Update is called once per frame
 		void Update ()
 		{
@@ -100,26 +108,39 @@ public class CreateMap : BaseUI {
 				}
 		}
 	
+	
 		IEnumerator  InitMap()
 		{
+		       print("dataTile.Count"+ row + "  "+column);
 				for(int i=0;i<row;i++)
 				{
 						for(int j=0;j<column;j++)
 						{
 							
-				                TileObj tileObj = objDic[i+","+j];
-								GameObject go = (GameObject)Instantiate(Resources.Load("Prefabs/Obj/Tile"));
+				                //TileObj tileObj = objDic[i+","+j];
+								GameObject go = null;
+								if(dataTile.Count<=0)
+								{
+									go = (GameObject)Instantiate(Resources.Load("Prefabs/Obj/Tile"));
+									go.transform.parent = tileParent;
+									
+									go.transform.localScale =new Vector3(Game.dataManager.gameData.SpriteWidth,Game.dataManager.gameData.SpriteWidth,1);
 
-								go.GetComponentInChildren<UISprite>().spriteName = go.GetComponentInChildren<UISprite>().atlas.spriteList[ mapInfo[i,j] - 1 ].name;
-								go.transform.parent = tileParent;
-				            
-								go.transform.localPosition = new Vector3(tileObj.x,tileObj.y,0);
-							//	iTween.MoveTo(go,iTween.Hash("y",tileObj.y,"islocal",true,"time",0.5f+j*0.1f));
-								go.transform.localScale =new Vector3(Game.dataManager.gameData.SpriteWidth,Game.dataManager.gameData.SpriteWidth,1);
-								tileObj.obj = go;
+								}
+								else
+								{
+											go = dataTile[i*column+j];
+											go.SetActive(true);
+					
+								}
+								go.GetComponent<UISprite>().spriteName = go.GetComponent<UISprite>().atlas.spriteList[ mapInfo[i,j] - 1 ].name;
+								go.transform.localPosition = new Vector3(objDic[i+","+j].x,objDic[i+","+j].y,0);
+	
+								objDic[i+","+j].obj = go;
 						}
 						yield return new  WaitForSeconds(0.2f);
 				}
+				dataTile.Clear();
 		}
     Vector2 CalculateCurIndex(Vector2 pos)
 	{
@@ -154,39 +175,7 @@ public class CreateMap : BaseUI {
 					saveQueue.Enqueue(v2);
 				}
 			}
-			up.x = v2.x;
-			up.y = v2.y+1;
-			
-			down.x = v2.x;
-			down.y = v2.y-1;
-			
-			left.x = v2.x-1;
-			left.y = v2.y;
-			
-			right.x = v2.x+1;
-			right.y = v2.y;
-			
-			if(v2.x == 0)
-			{
-				left.x = -1;
-				left.y = -1;
-			}
-			else if(v2.x == column-1)
-			{
-				right.x = -1;
-				right.y = -1;
-			}
-			
-			if(v2.y == 0)
-			{
-				down.x = -1;
-				down.y = -1;
-			}
-			else if(v2.y == row-1)
-			{
-				up.x = -1;
-				up.y = -1;
-			}
+			CheckTileInfo(v2,out up,out down,out left,out right);
 			
 			AddSameTile(up,"Up");
 			AddSameTile(down,"Down");
@@ -231,7 +220,13 @@ public class CreateMap : BaseUI {
 		{
 			Vector2 v = vIndex[i];
 			mapInfo[(int)v.y,(int)v.x] = 0;
-			Destroy(objDic[v.y+","+v.x].obj);
+			objDic[v.y+","+v.x].obj.SetActive(false);
+			if(!dataTile.Contains(objDic[v.y+","+v.x].obj))
+			{
+				dataTile.Add(objDic[v.y+","+v.x].obj);
+			}
+			objDic[v.y+","+v.x].obj = null;
+			
 			UILabel  lable =  ((GameObject)Instantiate( Resources.Load("Prefabs/UI/Score"))).GetComponent<UILabel>();
 			lable.transform.parent = transform;
 			lable.transform.localPosition = new Vector3(objDic[v.y+","+v.x].x,objDic[v.y+","+v.x].y,0);
@@ -239,8 +234,7 @@ public class CreateMap : BaseUI {
 			int curPoint = 10+i*5;
 			lable.text =""+curPoint;
 			iTween.MoveTo(lable.gameObject,iTween.Hash("position",new Vector3(totalPointLab.transform.localPosition.x,totalPointLab.transform.localPosition.y,totalPointLab.transform.localPosition.z),"time",0.5f+i*0.3f,"islocal",true,"oncomplete","OnCompleteMoveOver","oncompletetarget",lable.gameObject,"oncompleteparams",curPoint));
-			
-		   if(!gameOverCheckFlag)
+		    if(!gameOverCheckFlag)
 			{
 				gameOverCheckFlag = true;
 			}
@@ -300,7 +294,6 @@ public class CreateMap : BaseUI {
 					f = (int)temp.x;
 				}
 				moveTileNum++;
-				//print("SSSS:"+temp.y+" "+f+"moveTileNum:"+moveTileNum);
 			}
 		}
 		if(f==1000)
@@ -353,10 +346,8 @@ public class CreateMap : BaseUI {
 	{
 		if(i == tile.Count-1)
 		{
-//			print("***************");
 			intervalFlag = false;
 			dropFlag = false;
-			ShowTile();
 			CheckGameOver();
 		}
 	}
@@ -364,7 +355,6 @@ public class CreateMap : BaseUI {
 	{
 		if(s == tile.Count-1)
 		{
-			
 			for(int j =0;j<row;j++)
 			{
 				for(int i=f;i<column;i++)
@@ -408,7 +398,6 @@ public class CreateMap : BaseUI {
 			//print("***************");
 			intervalFlag = false;
 			dropFlag = false;
-			ShowTile();
 			CheckGameOver();
 		}
 	}
@@ -425,7 +414,7 @@ public class CreateMap : BaseUI {
 			}
 			str.Append("\n");
 		}
-		//print(str);
+		print(str);
 	}
 	
 	
@@ -461,39 +450,7 @@ public class CreateMap : BaseUI {
 					v2.x =j;
 					v2.y = i;
 					
-					up.x = v2.x;
-					up.y = v2.y+1;
-					
-					down.x = v2.x;
-					down.y = v2.y-1;
-					
-					left.x = v2.x-1;
-					left.y = v2.y;
-					
-					right.x = v2.x+1;
-					right.y = v2.y;
-					
-					if(v2.x == 0)
-					{
-						left.x = -1;
-						left.y = -1;
-					}
-					else if(v2.x == column-1)
-					{
-						right.x = -1;
-						right.y = -1;
-					}
-					
-					if(v2.y == 0)
-					{
-						down.x = -1;
-						down.y = -1;
-					}
-					else if(v2.y == row-1)
-					{
-						up.x = -1;
-						up.y = -1;
-					}
+				    CheckTileInfo(v2,out up,out down,out left,out right);
 					if(!constVar.Equals(up)&& mapInfo[i,j] == mapInfo[(int)up.y,(int)up.x])
 					{
 						print("WWWWWWWWWWWWW UP");
@@ -518,12 +475,32 @@ public class CreateMap : BaseUI {
 				
 			}
 		}
+		
+		for(int i=0;i<row;i++)
+		{
+			for(int j=0;j<column;j++)
+			{
+				if(mapInfo[i,j]>0)
+				{
+					
+					if(!dataTile.Contains(objDic[i+","+j].obj))
+					{
+						dataTile.Add(objDic[i+","+j].obj);
+					}
+				}
+			}
+		}
 		iTween.MoveTo(gameOver.gameObject,iTween.Hash("y",0,"time",1,"isLocal",true,"easyType",iTween.EaseType.linear,"oncomplete","GameOverComplete","oncompletetarget",gameObject));
-		print("GameOver$$$$$$$$$$$$$$!");
+		print("GameOver$$$$$$$$$$$$$$!"+ dataTile.Count);
 		//print("DDDDDDDDDDDDDDDDDDDDD");
 	}
 	void GameOverComplete()
 	{
+		for(int i=0;i<dataTile.Count;i++)
+		{
+			dataTile[i].SetActive(false);
+			
+		}
 		base.Close();
 		Game.uimanager.gameOverPanel = Game.uimanager.CreateUIObj<GameOverPanel>(UIPANEL.GameOverPanel);
 		
@@ -537,6 +514,43 @@ public class CreateMap : BaseUI {
 	public void SetTotalPoint()
 	{
 	    totalPointLab.text = "Total Points:"+ Game.dataManager.playerData.GetTotalPoints;
+	}
+	
+	void CheckTileInfo(Vector2 v2,out Vector2 up,out Vector2 down,out Vector2 left,out Vector2 right)
+	{
+			up.x = v2.x;
+			up.y = v2.y+1;
+			
+			down.x = v2.x;
+			down.y = v2.y-1;
+			
+			left.x = v2.x-1;
+			left.y = v2.y;
+			
+			right.x = v2.x+1;
+			right.y = v2.y;
+			
+			if(v2.x == 0)
+			{
+				left.x = -1;
+				left.y = -1;
+			}
+			else if(v2.x == column-1)
+			{
+				right.x = -1;
+				right.y = -1;
+			}
+			
+			if(v2.y == 0)
+			{
+				down.x = -1;
+				down.y = -1;
+			}
+			else if(v2.y == row-1)
+			{
+				up.x = -1;
+				up.y = -1;
+			}
 	}
 }
 

@@ -26,8 +26,8 @@ public class GameData  {
 		
 		row = height/spriteHeight/3*2;
 		column = width/spriteWidth;
-		offSetX = Mathf.CeilToInt(width%spriteWidth/2);
-		mapWidthMax = column*spriteWidth - offSetX;
+		offSetX = Mathf.CeilToInt((width-column*spriteWidth)/2);
+		mapWidthMax =  width- offSetX;
 		mapHeightMax = row*spriteHeight;
 		objDic = new Dictionary<string,TileObj>(); 
 		mapInfo = new int[row,column];

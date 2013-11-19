@@ -44,8 +44,8 @@ public class DataManager : MonoBehaviour {
 	
 	public void  GetFriendsCallBack(string friendsInfo)
 	{
-			friends = JsonReader.Deserialize<Friends>(friendsInfo);
-		    print(friends.users[0].name);
+//			friends = JsonReader.Deserialize<Friends>(friendsInfo);
+//		    print(friends.users[0].name);
 	}
 	
 }
